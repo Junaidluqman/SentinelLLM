@@ -334,10 +334,14 @@ st.markdown(
     }
 
 /* Circular University Logo */
+
+/* Centered Circular University Logo */
 [data-testid="stSidebar"] [data-testid="stImage"] {
     display: flex;
     justify-content: center;
-    margin: 10px auto 18px auto;
+    align-items: center;
+    width: 100%;
+    margin: 10px auto 12px auto;
 }
 
 [data-testid="stSidebar"] [data-testid="stImage"] img {
@@ -345,11 +349,12 @@ st.markdown(
     height: 115px !important;
     object-fit: contain !important;
     border-radius: 50% !important;
-    padding: 9px;
+    padding: 8px;
     background: white;
-    border: 3px solid rgba(53,214,232,0.65);
-    box-shadow: 0 0 25px rgba(53,214,232,0.20);
+    border: 3px solid #35d6e8;
+    box-shadow: 0 0 22px rgba(53,214,232,0.2);
 }
+
 
     #MainMenu, footer {visibility: hidden;}
     </style>
@@ -507,8 +512,45 @@ def scan_prompt(text):
 with st.sidebar:
 
     # University Logo
-    if os.path.exists(LOGO_PATH):
+  
+# University Logo - Centered
+if os.path.exists(LOGO_PATH):
+    left, center, right = st.columns([1, 2, 1])
+
+    with center:
         st.image(LOGO_PATH, width=115)
+
+st.markdown(
+    """
+    <div style="
+        text-align: center;
+        margin-top: -8px;
+        margin-bottom: 20px;
+        padding: 0 5px;
+    ">
+        <div style="
+            color: #eaf3ff;
+            font-size: 13px;
+            font-weight: 800;
+            line-height: 1.6;
+            letter-spacing: 0.4px;
+        ">
+            SHAHEED BENAZIR BHUTTO UNIVERSITY
+        </div>
+        <div style="
+            color: #35d6e8;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-top: 3px;
+        ">
+            SHAHEED BENAZIR ABAD
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
 
     # Student Information
     st.markdown(
