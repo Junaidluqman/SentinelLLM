@@ -333,6 +333,24 @@ st.markdown(
         letter-spacing: .04em;
     }
 
+/* Circular University Logo */
+[data-testid="stSidebar"] [data-testid="stImage"] {
+    display: flex;
+    justify-content: center;
+    margin: 10px auto 18px auto;
+}
+
+[data-testid="stSidebar"] [data-testid="stImage"] img {
+    width: 115px !important;
+    height: 115px !important;
+    object-fit: contain !important;
+    border-radius: 50% !important;
+    padding: 9px;
+    background: white;
+    border: 3px solid rgba(53,214,232,0.65);
+    box-shadow: 0 0 25px rgba(53,214,232,0.20);
+}
+
     #MainMenu, footer {visibility: hidden;}
     </style>
     """,
@@ -485,22 +503,28 @@ def scan_prompt(text):
 # -------------------------------
 # Sidebar navigation
 # -------------------------------
+
 with st.sidebar:
+
+    # University Logo
     if os.path.exists(LOGO_PATH):
-        st.image(LOGO_PATH, width=138)
+        st.image(LOGO_PATH, width=115)
+
+    # Student Information
     st.markdown(
         """
         <div class="university-card">
             <div class="student-name">Junaid Luqman Brohi</div>
             <div class="student-meta">
                 24BSIT68<br>
-                BS Information Technology Department<br>
-                SHAHEED BENAZIR BHUTTO UNIVERSITY SHAHEED BENAZIR ABAD </br>
+                BS Information Technology Department
             </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
+    # SentinelLLM Branding
     st.markdown(
         """
         <div class="brand-lockup">
@@ -513,6 +537,7 @@ with st.sidebar:
         """,
         unsafe_allow_html=True,
     )
+
     st.markdown(
         '<div class="section-kicker">Workspace</div>',
         unsafe_allow_html=True,
@@ -532,10 +557,12 @@ with st.sidebar:
 
     st.divider()
     st.markdown("**SYSTEM STATUS**")
+
     st.markdown(
         '<span class="status-pill status-safe">● MODEL LOADED</span>',
         unsafe_allow_html=True,
     )
+
     st.caption("SentinelLLM · Version 1.0.0")
     st.caption("Research prototype")
 
