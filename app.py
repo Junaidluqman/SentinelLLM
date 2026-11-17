@@ -346,24 +346,80 @@ st.markdown(
         letter-spacing: .04em;
     }
 
-    /* Centered circular university logo */
+    /* University identity: centered, circular, and responsive */
     [data-testid="stSidebar"] [data-testid="stImage"] {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        margin: 10px auto 12px auto;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin: 14px auto 16px auto !important;
+        padding: 0 !important;
     }
 
     [data-testid="stSidebar"] [data-testid="stImage"] img {
-        width: 115px !important;
-        height: 115px !important;
+        display: block !important;
+        width: clamp(96px, 36%, 124px) !important;
+        height: auto !important;
+        aspect-ratio: 1 / 1 !important;
         object-fit: contain !important;
+        object-position: center !important;
+        box-sizing: border-box !important;
+        margin: 0 auto !important;
         border-radius: 50% !important;
-        padding: 8px;
-        background: #ffffff;
-        border: 3px solid #35d6e8;
-        box-shadow: 0 0 22px rgba(53,214,232,0.20);
+        padding: 6px !important;
+        background: #fff !important;
+        border: 3px solid #35d6e8 !important;
+        box-shadow: 0 0 0 5px rgba(53,214,232,.08), 0 8px 28px rgba(0,0,0,.28), 0 0 24px rgba(53,214,232,.18) !important;
+    }
+
+    [data-testid="stSidebar"] .university-card {
+        margin-top: 2px;
+        padding: 16px 12px;
+        transition: border-color .2s ease, transform .2s ease;
+    }
+    [data-testid="stSidebar"] .university-card:hover {
+        border-color: rgba(53,214,232,.38);
+        transform: translateY(-1px);
+    }
+
+    /* More breathing room and consistent responsive behavior */
+    [data-testid="stSidebar"] > div:first-child {
+        padding-top: 1rem;
+    }
+    [data-testid="stSidebar"] .stRadio > div {
+        gap: 5px;
+    }
+    [data-testid="stSidebar"] .stRadio label {
+        border-radius: 10px;
+        padding: 5px 8px;
+        transition: background .18s ease;
+    }
+    [data-testid="stSidebar"] .stRadio label:hover {
+        background: rgba(53,214,232,.08);
+    }
+    .hero, .metric-card, .section-card {
+        backdrop-filter: blur(12px);
+    }
+    .metric-card {
+        transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+    .metric-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(53,214,232,.32);
+        box-shadow: 0 16px 36px rgba(0,0,0,.22);
+    }
+    @media (max-width: 900px) {
+        .block-container { padding: 1.25rem 1rem 2rem 1rem; }
+        .hero { padding: 23px 20px; border-radius: 18px; }
+        .hero h1 { font-size: clamp(27px, 6vw, 38px) !important; }
+        .metric-card { padding: 14px; min-height: 108px; }
+        .metric-value { font-size: 25px; }
+    }
+    @media (max-width: 520px) {
+        .block-container { padding-left: .75rem; padding-right: .75rem; }
+        .hero { padding: 20px 16px; }
+        .hero p { font-size: 13px; }
+        .section-title { font-size: 18px; }
     }
 
     #MainMenu, footer {visibility: hidden;}
