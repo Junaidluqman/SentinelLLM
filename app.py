@@ -494,7 +494,8 @@ with st.sidebar:
             <div class="student-name">Junaid Luqman Brohi</div>
             <div class="student-meta">
                 24BSIT68<br>
-                BS Information Technology Department
+                BS Information Technology Department<br>
+                SHAHEED BENAZIR BHUTTO UNIVERSITY SHAHEED BENAZIR ABAD </br>
             </div>
         </div>
         """,
