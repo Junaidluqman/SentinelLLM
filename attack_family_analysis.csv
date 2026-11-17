@@ -1,0 +1,13 @@
+attack_family,Total,Detected,Recall
+approval_workflow_bypass,10.0,10.0,1.0
+authority_claim_bypass,10.0,10.0,1.0
+direct_instruction_override,10.0,10.0,1.0
+indirect_content_injection,10.0,10.0,1.0
+memory_context_poisoning,10.0,10.0,1.0
+multi_agent_trust_spoofing,10.0,10.0,1.0
+obfuscation_encoding,10.0,10.0,1.0
+rag_context_poisoning,10.0,10.0,1.0
+roleplay_jailbreak,10.0,10.0,1.0
+sensitive_data_exfiltration,10.0,10.0,1.0
+system_prompt_extraction,10.0,10.0,1.0
+tool_action_abuse,10.0,9.0,0.9

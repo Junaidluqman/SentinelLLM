@@ -1,0 +1,43 @@
+{
+    "project": "SentinelLLM",
+    "version": "1.0.0",
+    "threshold": 0.53,
+    "roc_auc": 1.0,
+    "dataset": "3nesdeniz/agentic-prompt-injection-boundary-pairs",
+    "test_samples": 240,
+    "metrics": {
+        "Rule-Based": {
+            "Accuracy": 0.5,
+            "Precision": 0.0,
+            "Recall": 0.0,
+            "F1 Score": 0.0,
+            "False Positive Rate": 0.0,
+            "True Negatives": 120.0,
+            "False Positives": 0.0,
+            "False Negatives": 120.0,
+            "True Positives": 0.0
+        },
+        "ML-Based": {
+            "Accuracy": 0.9958333333333333,
+            "Precision": 1.0,
+            "Recall": 0.9916666666666667,
+            "F1 Score": 0.99581589958159,
+            "False Positive Rate": 0.0,
+            "True Negatives": 120.0,
+            "False Positives": 0.0,
+            "False Negatives": 1.0,
+            "True Positives": 119.0
+        },
+        "Hybrid": {
+            "Accuracy": 0.9958333333333333,
+            "Precision": 1.0,
+            "Recall": 0.9916666666666667,
+            "F1 Score": 0.99581589958159,
+            "False Positive Rate": 0.0,
+            "True Negatives": 120.0,
+            "False Positives": 0.0,
+            "False Negatives": 1.0,
+            "True Positives": 119.0
+        }
+    }
+}
