@@ -24,6 +24,7 @@ st.set_page_config(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "sentinellm_model.joblib")
 REPORT_PATH = os.path.join(BASE_DIR, "reports", "evaluation.json")
+LOGO_PATH = os.path.join(BASE_DIR, "assets", "university_logo.png")
 
 # -------------------------------
 # Premium visual styling
@@ -86,6 +87,30 @@ st.markdown(
 
     p, label, .stMarkdown, [data-testid="stCaptionContainer"] {
         color: #c4d2e4;
+    }
+
+    .university-card {
+        text-align: center;
+        padding: 14px 10px 15px 10px;
+        margin: 0 0 16px 0;
+        border-radius: 16px;
+        background: linear-gradient(145deg, rgba(20,34,55,.95), rgba(11,22,38,.95));
+        border: 1px solid rgba(148,163,184,.18);
+    }
+
+    .student-name {
+        color: #f1f7ff;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        margin-top: 10px;
+    }
+
+    .student-meta {
+        color: #9eb2ca;
+        font-size: 11px;
+        margin-top: 4px;
+        line-height: 1.5;
     }
 
     .brand-lockup {
@@ -461,6 +486,20 @@ def scan_prompt(text):
 # Sidebar navigation
 # -------------------------------
 with st.sidebar:
+    if os.path.exists(LOGO_PATH):
+        st.image(LOGO_PATH, width=138)
+    st.markdown(
+        """
+        <div class="university-card">
+            <div class="student-name">Junaid Luqman Brohi</div>
+            <div class="student-meta">
+                24BSIT68<br>
+                BS Information Technology Department
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.markdown(
         """
         <div class="brand-lockup">
@@ -898,7 +937,7 @@ elif page == "About":
 st.markdown(
     """
     <div class="footer">
-        SENTINELLLM · AI SECURITY RESEARCH · MACHINE LEARNING-BASED PROMPT INJECTION DETECTION
+        SENTINELLLM · JUNAID LUQMAN BROHI · 24BSIT68 · BS INFORMATION TECHNOLOGY
     </div>
     """,
     unsafe_allow_html=True,
