@@ -23,8 +23,8 @@ st.set_page_config(
 # /sentinellm_model.joblib
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "sentinellm_model.joblib")
-REPORT_PATH = os.path.join(BASE_DIR, "reports", "evaluation.json")
-LOGO_PATH = os.path.join(BASE_DIR, "assets", "university_logo.png")
+REPORT_PATH = os.path.join(BASE_DIR, "evaluation.json")
+LOGO_PATH = os.path.join(BASE_DIR, "university_logo.png")
 
 # -------------------------------
 # Premium visual styling
