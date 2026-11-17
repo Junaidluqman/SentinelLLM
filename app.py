@@ -1,4 +1,5 @@
 import os
+import base64
 import re
 import json
 import html
@@ -346,81 +347,24 @@ st.markdown(
         letter-spacing: .04em;
     }
 
-    /* University identity: centered, circular, and responsive */
-    [data-testid="stSidebar"] [data-testid="stImage"] {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        width: 100% !important;
-        margin: 14px auto 16px auto !important;
-        padding: 0 !important;
-    }
-
-    [data-testid="stSidebar"] [data-testid="stImage"] img {
-        display: block !important;
-        width: clamp(96px, 36%, 124px) !important;
-        height: auto !important;
-        aspect-ratio: 1 / 1 !important;
-        object-fit: contain !important;
-        object-position: center !important;
-        box-sizing: border-box !important;
-        margin: 0 auto !important;
-        border-radius: 50% !important;
-        padding: 6px !important;
-        background: #fff !important;
-        border: 3px solid #35d6e8 !important;
-        box-shadow: 0 0 0 5px rgba(53,214,232,.08), 0 8px 28px rgba(0,0,0,.28), 0 0 24px rgba(53,214,232,.18) !important;
-    }
-
-    [data-testid="stSidebar"] .university-card {
-        margin-top: 2px;
-        padding: 16px 12px;
-        transition: border-color .2s ease, transform .2s ease;
-    }
-    [data-testid="stSidebar"] .university-card:hover {
-        border-color: rgba(53,214,232,.38);
-        transform: translateY(-1px);
-    }
-
-    /* More breathing room and consistent responsive behavior */
-    [data-testid="stSidebar"] > div:first-child {
-        padding-top: 1rem;
-    }
-    [data-testid="stSidebar"] .stRadio > div {
-        gap: 5px;
-    }
-    [data-testid="stSidebar"] .stRadio label {
-        border-radius: 10px;
-        padding: 5px 8px;
-        transition: background .18s ease;
-    }
-    [data-testid="stSidebar"] .stRadio label:hover {
-        background: rgba(53,214,232,.08);
-    }
-    .hero, .metric-card, .section-card {
-        backdrop-filter: blur(12px);
-    }
-    .metric-card {
-        transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
-    }
-    .metric-card:hover {
-        transform: translateY(-3px);
-        border-color: rgba(53,214,232,.32);
-        box-shadow: 0 16px 36px rgba(0,0,0,.22);
-    }
-    @media (max-width: 900px) {
-        .block-container { padding: 1.25rem 1rem 2rem 1rem; }
-        .hero { padding: 23px 20px; border-radius: 18px; }
-        .hero h1 { font-size: clamp(27px, 6vw, 38px) !important; }
-        .metric-card { padding: 14px; min-height: 108px; }
-        .metric-value { font-size: 25px; }
-    }
-    @media (max-width: 520px) {
-        .block-container { padding-left: .75rem; padding-right: .75rem; }
-        .hero { padding: 20px 16px; }
-        .hero p { font-size: 13px; }
-        .section-title { font-size: 18px; }
-    }
+    /* Center logo independently of Streamlit image-column layout */
+    [data-testid="stSidebar"] { min-width:285px; max-width:285px; }
+    [data-testid="stSidebar"] [data-testid="stImage"] { display:none !important; }
+    .university-logo-wrap { width:100%; display:flex; justify-content:center; align-items:center; margin:8px auto 14px; box-sizing:border-box; }
+    .university-logo-frame { width:116px; height:116px; flex:0 0 116px; display:flex; justify-content:center; align-items:center; overflow:hidden; box-sizing:border-box; border-radius:50%; background:#fff; border:3px solid #35d6e8; box-shadow:0 0 0 5px rgba(53,214,232,.09); }
+    .university-logo-frame img { display:block; width:100%; height:100%; max-width:none; object-fit:contain; object-position:center; border-radius:50%; padding:4px; box-sizing:border-box; }
+    .university-heading { width:100%; text-align:center; margin:0 auto 18px; padding:0 8px; box-sizing:border-box; }
+    .university-heading .uni-name { color:#eaf3ff; font-size:12px; font-weight:800; line-height:1.45; letter-spacing:.25px; }
+    .university-heading .uni-location { color:#35d6e8; font-size:10px; font-weight:700; letter-spacing:1px; margin-top:3px; }
+    [data-testid="stSidebar"] .university-card { margin:0 0 18px; padding:14px 10px; text-align:center; }
+    [data-testid="stSidebar"] .brand-lockup { padding:4px 2px 16px; }
+    [data-testid="stSidebar"] .stRadio > div { gap:3px; }
+    [data-testid="stSidebar"] .stRadio label { padding:7px 9px; border-radius:9px; }
+    [data-testid="stSidebar"] .stRadio label:hover { background:rgba(53,214,232,.08); }
+    .metric-card { transition:border-color .15s ease; }
+    .metric-card:hover { border-color:rgba(53,214,232,.35); }
+    @media (max-width:900px) { .block-container{padding:1.25rem 1rem 2rem}.hero{padding:22px 18px}.hero h1{font-size:clamp(26px,5vw,36px)!important} }
+    @media (max-width:520px) { .block-container{padding-left:.7rem;padding-right:.7rem}.hero{padding:18px 14px}.hero p{font-size:13px}.section-title{font-size:18px} }
 
     #MainMenu, footer {visibility: hidden;}
     </style>
@@ -589,68 +533,45 @@ def scan_prompt(text):
 # Sidebar navigation
 # -------------------------------
 with st.sidebar:
-    # Centered university logo
+    # Dedicated full-width HTML wrapper guarantees true horizontal centering.
     if os.path.isfile(LOGO_PATH):
-        st.image(LOGO_PATH, width=115)
+        with open(LOGO_PATH, "rb") as logo_file:
+            logo_b64 = base64.b64encode(logo_file.read()).decode("ascii")
+        logo_ext = os.path.splitext(LOGO_PATH)[1].lower()
+        logo_mime = "image/jpeg" if logo_ext in (".jpg", ".jpeg") else "image/png"
+        logo_html = (
+            '<div class="university-logo-wrap"><div class="university-logo-frame">'
+            f'<img src="data:{logo_mime};base64,{logo_b64}" alt="University logo">'
+            '</div></div>'
+            '<div class="university-heading">'
+            '<div class="uni-name">SHAHEED BENAZIR BHUTTO UNIVERSITY</div>'
+            '<div class="uni-location">SHAHEED BENAZIR ABAD</div></div>'
+        )
+        st.markdown(logo_html, unsafe_allow_html=True)
     else:
         st.warning("University logo not found. Add university_logo.png to the repository root or assets/ folder.")
+        st.markdown('<div class="university-heading"><div class="uni-name">SHAHEED BENAZIR BHUTTO UNIVERSITY</div><div class="uni-location">SHAHEED BENAZIR ABAD</div></div>', unsafe_allow_html=True)
 
-    # University name directly below the logo
     st.markdown(
-        """
-        <div style="text-align:center; margin: -5px 0 20px 0; padding: 0 5px;">
-            <div style="color:#eaf3ff; font-size:13px; font-weight:800; line-height:1.5; letter-spacing:.35px;">
-                SHAHEED BENAZIR BHUTTO UNIVERSITY
-            </div>
-            <div style="color:#35d6e8; font-size:11px; font-weight:600; letter-spacing:1px; margin-top:3px;">
-                SHAHEED BENAZIR ABAD
-            </div>
-        </div>
-        """,
+        '<div class="university-card"><div class="student-name">Junaid Luqman Brohi</div>'
+        '<div class="student-meta">24BSIT68<br>BS Information Technology Department</div></div>',
         unsafe_allow_html=True,
     )
-
-    # Student information
     st.markdown(
-        """
-        <div class="university-card">
-            <div class="student-name">Junaid Luqman Brohi</div>
-            <div class="student-meta">
-                24BSIT68<br>
-                BS Information Technology Department
-            </div>
-        </div>
-        """,
+        '<div class="brand-lockup"><div class="brand-icon">🛡️</div><div>'
+        '<div class="brand-name">SentinelLLM</div><div class="brand-sub">AI Security Platform</div>'
+        '</div></div>',
         unsafe_allow_html=True,
     )
-
-    # SentinelLLM branding
-    st.markdown(
-        """
-        <div class="brand-lockup">
-            <div class="brand-icon">🛡️</div>
-            <div>
-                <div class="brand-name">SentinelLLM</div>
-                <div class="brand-sub">AI Security Platform</div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown('<div class="section-kicker">Workspace</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-kicker">WORKSPACE</div>', unsafe_allow_html=True)
     page = st.radio(
         "Navigation",
         ["Dashboard", "Prompt Scanner", "Batch Analysis", "Security Evaluation", "About"],
         label_visibility="collapsed",
     )
-
     st.divider()
     st.markdown("**SYSTEM STATUS**")
-    st.markdown(
-        '<span class="status-pill status-safe">● MODEL LOADED</span>',
-        unsafe_allow_html=True,
-    )
+    st.markdown('<span class="status-pill status-safe">● MODEL LOADED</span>', unsafe_allow_html=True)
     st.caption("SentinelLLM · Version 1.0.0")
     st.caption("Research prototype")
 
