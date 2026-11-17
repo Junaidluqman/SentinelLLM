@@ -23,8 +23,21 @@ st.set_page_config(
 # /sentinellm_model.joblib
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "sentinellm_model.joblib")
-REPORT_PATH = os.path.join(BASE_DIR, "evaluation.json")
-LOGO_PATH = os.path.join(BASE_DIR, "university_logo.png")
+
+# Support the recommended reports/ location and the older root-level location.
+REPORT_CANDIDATES = [
+    os.path.join(BASE_DIR, "reports", "evaluation.json"),
+    os.path.join(BASE_DIR, "evaluation.json"),
+]
+REPORT_PATH = next((p for p in REPORT_CANDIDATES if os.path.isfile(p)), REPORT_CANDIDATES[0])
+
+# Support either root-level or assets/ university logo placement.
+LOGO_CANDIDATES = [
+    os.path.join(BASE_DIR, "university_logo.png"),
+    os.path.join(BASE_DIR, "assets", "university_logo.png"),
+    os.path.join(BASE_DIR, "assets", "logo.png"),
+]
+LOGO_PATH = next((p for p in LOGO_CANDIDATES if os.path.isfile(p)), LOGO_CANDIDATES[0])
 
 # -------------------------------
 # Premium visual styling
@@ -333,28 +346,25 @@ st.markdown(
         letter-spacing: .04em;
     }
 
-/* Circular University Logo */
+    /* Centered circular university logo */
+    [data-testid="stSidebar"] [data-testid="stImage"] {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin: 10px auto 12px auto;
+    }
 
-/* Centered Circular University Logo */
-[data-testid="stSidebar"] [data-testid="stImage"] {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    margin: 10px auto 12px auto;
-}
-
-[data-testid="stSidebar"] [data-testid="stImage"] img {
-    width: 115px !important;
-    height: 115px !important;
-    object-fit: contain !important;
-    border-radius: 50% !important;
-    padding: 8px;
-    background: white;
-    border: 3px solid #35d6e8;
-    box-shadow: 0 0 22px rgba(53,214,232,0.2);
-}
-
+    [data-testid="stSidebar"] [data-testid="stImage"] img {
+        width: 115px !important;
+        height: 115px !important;
+        object-fit: contain !important;
+        border-radius: 50% !important;
+        padding: 8px;
+        background: #ffffff;
+        border: 3px solid #35d6e8;
+        box-shadow: 0 0 22px rgba(53,214,232,0.20);
+    }
 
     #MainMenu, footer {visibility: hidden;}
     </style>
@@ -445,16 +455,30 @@ except Exception as exc:
 # -------------------------------
 # Load evaluation report
 # -------------------------------
-@st.cache_data
 def load_evaluation():
-    if os.path.exists(REPORT_PATH):
-        with open(REPORT_PATH, "r", encoding="utf-8") as file:
-            return json.load(file)
-    return {}
+    report_path = next(
+        (path for path in REPORT_CANDIDATES if os.path.isfile(path)),
+        None,
+    )
+    if report_path is None:
+        return {}
+
+    try:
+        with open(report_path, "r", encoding="utf-8") as file:
+            report = json.load(file)
+        if not isinstance(report, dict):
+            st.error("Evaluation report must contain a JSON object.")
+            return {}
+        if not isinstance(report.get("metrics"), dict):
+            st.error("Evaluation report is missing its 'metrics' object.")
+            return {}
+        return report
+    except (OSError, json.JSONDecodeError) as exc:
+        st.error(f"Could not read evaluation report: {exc}")
+        return {}
 
 
 evaluation = load_evaluation()
-
 
 # -------------------------------
 # Original detection logic preserved
@@ -508,51 +532,29 @@ def scan_prompt(text):
 # -------------------------------
 # Sidebar navigation
 # -------------------------------
-
 with st.sidebar:
-
-    # University Logo
-  
-# University Logo - Centered
-if os.path.exists(LOGO_PATH):
-    left, center, right = st.columns([1, 2, 1])
-
-    with center:
+    # Centered university logo
+    if os.path.isfile(LOGO_PATH):
         st.image(LOGO_PATH, width=115)
+    else:
+        st.warning("University logo not found. Add university_logo.png to the repository root or assets/ folder.")
 
-st.markdown(
-    """
-    <div style="
-        text-align: center;
-        margin-top: -8px;
-        margin-bottom: 20px;
-        padding: 0 5px;
-    ">
-        <div style="
-            color: #eaf3ff;
-            font-size: 13px;
-            font-weight: 800;
-            line-height: 1.6;
-            letter-spacing: 0.4px;
-        ">
-            SHAHEED BENAZIR BHUTTO UNIVERSITY
+    # University name directly below the logo
+    st.markdown(
+        """
+        <div style="text-align:center; margin: -5px 0 20px 0; padding: 0 5px;">
+            <div style="color:#eaf3ff; font-size:13px; font-weight:800; line-height:1.5; letter-spacing:.35px;">
+                SHAHEED BENAZIR BHUTTO UNIVERSITY
+            </div>
+            <div style="color:#35d6e8; font-size:11px; font-weight:600; letter-spacing:1px; margin-top:3px;">
+                SHAHEED BENAZIR ABAD
+            </div>
         </div>
-        <div style="
-            color: #35d6e8;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            margin-top: 3px;
-        ">
-            SHAHEED BENAZIR ABAD
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+        """,
+        unsafe_allow_html=True,
+    )
 
-
-    # Student Information
+    # Student information
     st.markdown(
         """
         <div class="university-card">
@@ -566,7 +568,7 @@ st.markdown(
         unsafe_allow_html=True,
     )
 
-    # SentinelLLM Branding
+    # SentinelLLM branding
     st.markdown(
         """
         <div class="brand-lockup">
@@ -580,34 +582,21 @@ st.markdown(
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        '<div class="section-kicker">Workspace</div>',
-        unsafe_allow_html=True,
-    )
-
+    st.markdown('<div class="section-kicker">Workspace</div>', unsafe_allow_html=True)
     page = st.radio(
         "Navigation",
-        [
-            "Dashboard",
-            "Prompt Scanner",
-            "Batch Analysis",
-            "Security Evaluation",
-            "About",
-        ],
+        ["Dashboard", "Prompt Scanner", "Batch Analysis", "Security Evaluation", "About"],
         label_visibility="collapsed",
     )
 
     st.divider()
     st.markdown("**SYSTEM STATUS**")
-
     st.markdown(
         '<span class="status-pill status-safe">● MODEL LOADED</span>',
         unsafe_allow_html=True,
     )
-
     st.caption("SentinelLLM · Version 1.0.0")
     st.caption("Research prototype")
-
 
 # -------------------------------
 # Dashboard
@@ -701,7 +690,7 @@ if page == "Dashboard":
             else:
                 st.info("The evaluation report does not contain the expected metric columns.")
         else:
-            st.warning("Evaluation report not found. Add reports/evaluation.json to the repository.")
+            st.warning("Evaluation report not found. Add reports/evaluation.json (or evaluation.json in the repository root).")
 
 
 # -------------------------------
