@@ -13,13 +13,12 @@ from pydantic import BaseModel, Field
 # -------------------------------------------------
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 MODEL_PATH = os.path.join(
-    BASE_DIR, "models", "sentinellm_model.joblib"
+    BASE_DIR, "sentinellm_model.joblib"
 )
 
 REPORT_PATH = os.path.join(
-    BASE_DIR, "reports", "evaluation.json"
+    BASE_DIR, "evaluation.json"
 )
 
 app = FastAPI(
