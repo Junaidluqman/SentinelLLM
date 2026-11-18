@@ -1190,9 +1190,14 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Central logout control (kept out of the sidebar).
-logout_left, logout_center, logout_right = st.columns([2, 1, 2])
-with logout_center:
+# Centered navigation controls at the bottom of the main workspace.
+# Previous returns to the project introduction; Logout returns to login.
+nav_left, previous_col, logout_col, nav_right = st.columns([2, 1, 1, 2])
+with previous_col:
+    if st.button("←  Previous", use_container_width=True):
+        st.session_state.app_view = "intro"
+        st.rerun()
+with logout_col:
     if st.button("↩  Logout", use_container_width=True):
         st.session_state.authenticated = False
         st.session_state.app_view = "login"
