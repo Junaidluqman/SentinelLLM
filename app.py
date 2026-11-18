@@ -384,8 +384,7 @@ st.markdown(
 # ============================================================
 
 def get_login_credentials():
-    # Fixed demo credentials for this academic project.
-    # This is intentionally simple and is not suitable for production use.
+    # Default academic-demo account. New accounts are stored in this session.
     return "admin", "admin123"
 
 
@@ -393,6 +392,9 @@ if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 if "app_view" not in st.session_state:
     st.session_state.app_view = "login"
+if "registered_users" not in st.session_state:
+    default_user, default_password = get_login_credentials()
+    st.session_state.registered_users = {default_user: default_password}
 
 
 def render_login_page():
@@ -402,48 +404,97 @@ def render_login_page():
           <div style="font-size:48px;">🛡️</div>
           <div class="eyebrow">SECURE ACCESS / AI SECURITY PLATFORM</div>
           <h1 style="font-size:clamp(34px,5vw,52px);margin-bottom:8px;">SentinelLLM</h1>
-          <p style="color:#9eb2ca;font-size:15px;">
-            Sign in to access the prompt-injection detection research platform.
-          </p>
+          <p style="color:#9eb2ca;font-size:15px;">Sign in to access the prompt-injection detection research platform.</p>
         </div>
         """,
         unsafe_allow_html=True,
     )
-
     left, center, right = st.columns([1, 1.15, 1])
     with center:
         with st.container(border=True):
             st.markdown("### Welcome back")
-            st.caption("Enter your authorized credentials to continue.")
+            st.caption("Enter your account credentials to continue.")
             with st.form("sentinellm_login_form", clear_on_submit=False):
                 username_input = st.text_input("Username", placeholder="Enter username")
-                password_input = st.text_input(
-                    "Password", type="password", placeholder="Enter password"
-                )
-                submitted = st.form_submit_button(
-                    "Login", type="primary", use_container_width=True
-                )
-
+                password_input = st.text_input("Password", type="password", placeholder="Enter password")
+                submitted = st.form_submit_button("Login", type="primary", use_container_width=True)
             if submitted:
-                configured_username, configured_password = get_login_credentials()
-                if not configured_username or not configured_password:
-                    st.error(
-                        "Demo login is unavailable. Please check the application configuration."
-                    )
-                elif (
-                    username_input == configured_username
-                    and password_input == configured_password
-                ):
+                users = st.session_state.registered_users
+                if users.get(username_input) == password_input:
                     st.session_state.authenticated = True
                     st.session_state.app_view = "intro"
                     st.rerun()
                 else:
                     st.error("Incorrect username or password.")
+            st.divider()
+            signup_col, forgot_col = st.columns(2)
+            with signup_col:
+                if st.button("Create account", use_container_width=True):
+                    st.session_state.app_view = "signup"
+                    st.rerun()
+            with forgot_col:
+                if st.button("Forgot password?", use_container_width=True):
+                    st.session_state.app_view = "forgot"
+                    st.rerun()
+        st.markdown('<div class="footer">SENTINELLLM · AUTHORIZED ACCESS ONLY</div>', unsafe_allow_html=True)
 
-        st.markdown(
-            '<div class="footer">SENTINELLLM · AUTHORIZED ACCESS ONLY</div>',
-            unsafe_allow_html=True,
-        )
+
+def render_signup_page():
+    st.markdown('<div style="text-align:center;margin:5vh auto 22px;"><div class="eyebrow">NEW USER REGISTRATION</div><h1>Create your account</h1><p>Register to access SentinelLLM.</p></div>', unsafe_allow_html=True)
+    left, center, right = st.columns([1, 1.15, 1])
+    with center:
+        with st.container(border=True):
+            with st.form("sentinellm_signup_form"):
+                new_username = st.text_input("Choose a username")
+                new_password = st.text_input("Create password", type="password")
+                confirm_password = st.text_input("Confirm password", type="password")
+                create = st.form_submit_button("Sign up", type="primary", use_container_width=True)
+            if create:
+                users = st.session_state.registered_users
+                if not new_username.strip() or not new_password:
+                    st.error("Enter both a username and password.")
+                elif new_username.strip() in users:
+                    st.error("That username already exists. Choose another one.")
+                elif len(new_password) < 6:
+                    st.error("Use a password with at least 6 characters.")
+                elif new_password != confirm_password:
+                    st.error("The passwords do not match.")
+                else:
+                    users[new_username.strip()] = new_password
+                    st.success("Account created. You can now log in.")
+                    st.session_state.app_view = "login"
+            if st.button("Back to login", use_container_width=True):
+                st.session_state.app_view = "login"
+                st.rerun()
+    st.caption("Demo note: accounts are stored in the current Streamlit session and may not persist after the session ends.")
+
+
+def render_forgot_password_page():
+    st.markdown('<div style="text-align:center;margin:5vh auto 22px;"><div class="eyebrow">ACCOUNT RECOVERY</div><h1>Reset password</h1><p>Set a new password for your account.</p></div>', unsafe_allow_html=True)
+    left, center, right = st.columns([1, 1.15, 1])
+    with center:
+        with st.container(border=True):
+            st.warning("Academic demo recovery: this page does not verify an email address or identity. Do not use this method for production accounts.")
+            with st.form("sentinellm_forgot_form"):
+                reset_username = st.text_input("Username")
+                reset_password = st.text_input("New password", type="password")
+                confirm_reset = st.text_input("Confirm new password", type="password")
+                reset = st.form_submit_button("Reset password", type="primary", use_container_width=True)
+            if reset:
+                users = st.session_state.registered_users
+                if reset_username not in users:
+                    st.error("Username not found.")
+                elif len(reset_password) < 6:
+                    st.error("Use a password with at least 6 characters.")
+                elif reset_password != confirm_reset:
+                    st.error("The passwords do not match.")
+                else:
+                    users[reset_username] = reset_password
+                    st.success("Password updated. Return to login.")
+                    st.session_state.app_view = "login"
+            if st.button("Back to login", use_container_width=True):
+                st.session_state.app_view = "login"
+                st.rerun()
 
 
 def render_project_intro():
@@ -452,33 +503,20 @@ def render_project_intro():
         <div class="hero">
           <div class="eyebrow">PROJECT OVERVIEW / AI SECURITY RESEARCH</div>
           <h1>SENTINELLLM</h1>
-          <p><b>An ML-Based Framework for Detecting Prompt Injection Attacks
-          and Evaluating LLM Security Defenses</b></p>
+          <p><b>An ML-Based Framework for Detecting Prompt Injection Attacks and Evaluating LLM Security Defenses</b></p>
           <div class="hero-chip">AI SECURITY RESEARCH PROTOTYPE</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
-
     st.markdown("## 1. Introduction")
-    st.write(
-        "SentinelLLM is a Machine Learning-based cybersecurity framework developed "
-        "to detect potential prompt injection attacks in AI-powered applications. "
-        "It combines Machine Learning, Rule-Based Detection, and Hybrid Detection "
-        "to identify suspicious prompts and distinguish them from legitimate "
-        "instructions. The system provides an interactive Streamlit dashboard for "
-        "prompt analysis, security detection, and model performance evaluation."
-    )
-
+    st.write("SentinelLLM is a Machine Learning-based cybersecurity framework developed to detect potential prompt injection attacks in AI-powered applications. It combines Machine Learning, Rule-Based Detection, and Hybrid Detection to identify suspicious prompts and distinguish them from legitimate instructions. The system provides an interactive Streamlit dashboard for prompt analysis, security detection, and model performance evaluation.")
     st.markdown("## 2. Project Objectives")
-    st.markdown(
-        "- Detect potential prompt injection attacks.\\n"
-        "- Classify prompts as benign or malicious.\\n"
-        "- Compare ML-based, Rule-Based, and Hybrid detection approaches.\\n"
-        "- Evaluate detection performance using standard metrics.\\n"
-        "- Promote awareness of security threats affecting Large Language Models (LLMs)."
-    )
-
+    st.markdown("""- Detect potential prompt injection attacks.
+- Classify prompts as benign or malicious.
+- Compare ML-based, Rule-Based, and Hybrid detection approaches.
+- Evaluate detection performance using standard metrics.
+- Promote awareness of security threats affecting Large Language Models (LLMs).""")
     st.markdown("## 3. Key Features & Functions")
     feature_data = [
         ("ML-Based Detection", "Uses a trained Machine Learning model to identify malicious prompt patterns."),
@@ -491,48 +529,26 @@ def render_project_intro():
     feature_cols = st.columns(2)
     for i, (name, description) in enumerate(feature_data):
         with feature_cols[i % 2]:
-            st.markdown(
-                f'<div class="metric-card" style="margin-bottom:14px;min-height:135px;">'
-                f'<div class="metric-label">FEATURE {i+1:02d}</div>'
-                f'<div style="font-weight:700;color:#f3f8ff;font-size:17px;margin-top:9px;">{html.escape(name)}</div>'
-                f'<div class="metric-note" style="font-size:13px;line-height:1.6;">{html.escape(description)}</div>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-
+            st.markdown(f'<div class="metric-card" style="margin-bottom:14px;min-height:135px;"><div class="metric-label">FEATURE {i+1:02d}</div><div style="font-weight:700;color:#f3f8ff;font-size:17px;margin-top:9px;">{html.escape(name)}</div><div class="metric-note" style="font-size:13px;line-height:1.6;">{html.escape(description)}</div></div>', unsafe_allow_html=True)
     st.markdown("## 4. Technologies Used")
     tech_cols = st.columns(3)
-    technologies = [
-        "Python", "Google Colab", "Machine Learning",
-        "Pandas & NumPy", "Scikit-learn (where implemented)",
-        "Hugging Face Datasets", "Streamlit",
-    ]
+    technologies = ["Python", "Google Colab", "Machine Learning", "Pandas & NumPy", "Scikit-learn (where implemented)", "Hugging Face Datasets", "Streamlit"]
     for i, technology in enumerate(technologies):
         with tech_cols[i % 3]:
-            st.markdown(
-                f'<div class="section-card" style="text-align:center;font-weight:600;">'
-                f'{html.escape(technology)}</div>',
-                unsafe_allow_html=True,
-            )
-
+            st.markdown(f'<div class="section-card" style="text-align:center;font-weight:600;">{html.escape(technology)}</div>', unsafe_allow_html=True)
     st.markdown("## 5. Expected Impact")
-    st.write(
-        "SentinelLLM demonstrates how Data Science and Machine Learning techniques "
-        "can support the identification of prompt injection threats. It provides an "
-        "educational prototype for analyzing suspicious prompts and evaluating "
-        "different detection approaches."
-    )
-
+    st.write("SentinelLLM demonstrates how Data Science and Machine Learning techniques can support the identification of prompt injection threats. It provides an educational prototype for analyzing suspicious prompts and evaluating different detection approaches.")
     st.markdown("---")
     st.markdown("### Developed By")
-    st.markdown(
-        "**Junaid Luqman Brohi **  \n"
-        "**Roll No:** 24BSIT(68)  \n"
-        "**Department:** Information Technology  \n"
-        "**University:** Shaheed Benazir Bhutto University, Shaheed Benazirabad"
-    )
+    st.markdown("""<div style="line-height:1.9;text-align:left;">
+    <strong>Junaid Luqman Brohi</strong><br>
+    <strong>Roll No:</strong> 24BSIT(68)<br>
+    <strong>Department:</strong> Information Technology<br>
+    <strong>University:</strong> Shaheed Benazir Bhutto University, Shaheed Benazirabad
+    </div>""", unsafe_allow_html=True)
 
-    start_col, logout_col, spacer_col = st.columns([1.2, 1, 3])
+    st.markdown("<div style='height:18px'></div>", unsafe_allow_html=True)
+    left, start_col, logout_col, right = st.columns([1, 1.35, 1.1, 1])
     with start_col:
         if st.button("🚀  Start SentinelLLM", type="primary", use_container_width=True):
             st.session_state.app_view = "workspace"
@@ -542,18 +558,19 @@ def render_project_intro():
             st.session_state.authenticated = False
             st.session_state.app_view = "login"
             st.rerun()
-
-    st.markdown(
-        '<div class="footer">SENTINELLLM · JUNAID LUQMAN · 24BSIT(68) · '
-        'BS INFORMATION TECHNOLOGY</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown('<div class="footer">SENTINELLLM · JUNAID LUQMAN BROHI · 24BSIT(68) · BS INFORMATION TECHNOLOGY</div>', unsafe_allow_html=True)
 
 
 # Route users through login -> project introduction -> application.
 if not st.session_state.authenticated:
-    st.session_state.app_view = "login"
-    render_login_page()
+    if st.session_state.app_view in ("signup", "forgot"):
+        if st.session_state.app_view == "signup":
+            render_signup_page()
+        else:
+            render_forgot_password_page()
+    else:
+        st.session_state.app_view = "login"
+        render_login_page()
     st.stop()
 
 if st.session_state.app_view == "intro":
@@ -563,7 +580,6 @@ if st.session_state.app_view == "intro":
 if st.session_state.app_view == "login":
     render_login_page()
     st.stop()
-
 
 
 def hero(eyebrow, title, description, chip=None):
@@ -764,10 +780,6 @@ with st.sidebar:
     )
     page = selected_page
 
-    if st.button("↩  Logout", use_container_width=True):
-        st.session_state.authenticated = False
-        st.session_state.app_view = "login"
-        st.rerun()
     st.divider()
     st.markdown("**SYSTEM STATUS**")
     st.markdown('<span class="status-pill status-safe">● MODEL LOADED</span>', unsafe_allow_html=True)
@@ -1177,3 +1189,11 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+# Central logout control (kept out of the sidebar).
+logout_left, logout_center, logout_right = st.columns([2, 1, 2])
+with logout_center:
+    if st.button("↩  Logout", use_container_width=True):
+        st.session_state.authenticated = False
+        st.session_state.app_view = "login"
+        st.rerun()
