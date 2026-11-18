@@ -526,9 +526,9 @@ def render_project_intro():
     st.markdown("---")
     st.markdown("### Developed By")
     st.markdown(
-        "**Junaid Luqman**  \\n"
-        "**Registration No:** 24BSIT(68)  \\n"
-        "**Department:** Information Technology  \\n"
+        "**Junaid Luqman Brohi **  \n"
+        "**Roll No:** 24BSIT(68)  \n"
+        "**Department:** Information Technology  \n"
         "**University:** Shaheed Benazir Bhutto University, Shaheed Benazirabad"
     )
 
